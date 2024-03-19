@@ -1,20 +1,22 @@
 pipeline {
     agent any
+    tools { 
+        nodejs "Node-JS" 
+    }
     environment {
         DOCKER_IMAGE = 'weezy'
         DOCKER_REGISTRY = 'gym14714'
         KUBECONFIG_CREDENTIAL_ID = 'my-kubeconfig-file'
         DOCKER_COMMAND = '/usr/local/bin/docker'
         KUBECTL_COMMAND = '/usr/local/bin/kubectl'
-        NPM_COMMAND= '/usr/local/bin/npm'
     }
     stages {
         stage('Tests') {
             steps {
                 echo 'Building..'
-                sh "${NPM_COMMAND} npm install"
+                sh 'npm install'
                 echo 'Testing..'
-                sh "${NPM_COMMAND} npm test"
+                sh 'npm test'
             }
         }
         stage('Build Docker Image') {
@@ -36,6 +38,7 @@ pipeline {
         }
     }
 }
+
 
 
 
