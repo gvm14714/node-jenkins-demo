@@ -42,7 +42,7 @@ pipeline {
                     // Use the kubeconfig file
                     withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG')]) {
                         // Deploy to Kubernetes using kubectl commands
-                        sh "${KUBECTL_COMMAND} apply -f cash.yml"
+                        sh "${KUBECTL_COMMAND} apply -f cash.yaml"
                     }
                 }
             }
