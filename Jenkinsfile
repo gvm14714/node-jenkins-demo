@@ -1,5 +1,14 @@
 pipeline {
     agent any
+
+   environment {
+        // Define environment variables here
+        DOCKER_IMAGE = 'weezy'  // Replace with your image name
+        DOCKER_REGISTRY = 'gym14714'  // Replace with your Docker registry URL
+        KUBECONFIG_CREDENTIAL_ID = 'my-kubeconfig-file'
+        DOCKER_COMMAND = '/usr/local/bin/docker' // Path to the Docker executable
+        KUBECTL_COMMAND = '/usr/local/bin/kubectl' // Path to the kubectl executable 
+
     stages {
         stage('Tests') {
             steps {
@@ -14,31 +23,31 @@ pipeline {
 //                 }
             }
         }
-        stage('Build and push docker image') {
+         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerImage = docker.build("antonml/node-demo:master")
-                    docker.withRegistry('', 'demo-docker') {
-                        dockerImage.push('master')
+                    // Build the Docker image
+                    sh "${DOCKER_COMMAND} build -t ${DOCKER_REGISTRY}/${DOCKER_IMAGE} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the Docker image to the Docker registry using Docker Hub credentials
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "${DOCKER_COMMAND} login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                        sh "${DOCKER_COMMAND} push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
                     }
                 }
-            }
-        }
-        stage('Deploy to remote docker host') {
-            environment {
-                DOCKER_HOST_CREDENTIALS = credentials('demo-docker')
-            }
-            steps {
-                script {
-//                     sh 'docker login -u $DOCKER_HOST_CREDENTIALS_USR -p $DOCKER_HOST_CREDENTIALS_PSW 127.0.0.1:2375'
-                    sh 'docker pull antonml/node-demo:master'
-                    sh 'docker stop node-demo'
-                    sh 'docker rm node-demo'
-                    sh 'docker rmi antonml/node-demo:current'
-                    sh 'docker tag antonml/node-demo:master antonml/node-demo:current'
-                    sh 'docker run -d --name node-demo -p 80:3000 antonml/node-demo:current'
-                }
-            }
+            } 
         }
     }
+   }
 }
+
+
+
+
+
