@@ -6,14 +6,15 @@ pipeline {
         KUBECONFIG_CREDENTIAL_ID = 'my-kubeconfig-file'
         DOCKER_COMMAND = '/usr/local/bin/docker'
         KUBECTL_COMMAND = '/usr/local/bin/kubectl'
+        NPM_COMMAND= '/usr/local/bin/npm'
     }
     stages {
         stage('Tests') {
             steps {
                 echo 'Building..'
-                sh 'npm install'
+                sh "${NPM_COMMAND} npm install"
                 echo 'Testing..'
-                sh 'npm test'
+                sh "${NPM_COMMAND} npm test"
             }
         }
         stage('Build Docker Image') {
